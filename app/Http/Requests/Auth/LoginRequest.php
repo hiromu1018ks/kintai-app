@@ -1,13 +1,16 @@
 <?php
-
+// app/Http/Requests/Auth/LoginRequest.php
 namespace App\Http\Requests\Auth;
 
+use App\Models\User;
 use Illuminate\Auth\Events\Lockout;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
+
+// Userモデルをインポート
 
 class LoginRequest extends FormRequest
 {
@@ -22,12 +25,12 @@ class LoginRequest extends FormRequest
     /**
      * Get the validation rules that apply to the request.
      *
-     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
+     * @return array<string, \Illuminate\Contracts\Validation\Rule|array|string>
      */
     public function rules(): array
     {
         return [
-            'email' => ['required', 'string', 'email'],
+            'employee_id' => ['required', 'string'], // 'email' を 'employee_id' に変更
             'password' => ['required', 'string'],
         ];
     }
@@ -41,11 +44,13 @@ class LoginRequest extends FormRequest
     {
         $this->ensureIsNotRateLimited();
 
-        if (! Auth::attempt($this->only('email', 'password'), $this->boolean('remember'))) {
+        // 'email' を 'employee_id' に変更
+        if (!Auth::attempt($this->only('employee_id', 'password'), $this->boolean('remember'))) {
             RateLimiter::hit($this->throttleKey());
 
             throw ValidationException::withMessages([
-                'email' => trans('auth.failed'),
+                // 'email' を 'employee_id' に変更
+                'employee_id' => trans('auth.failed'),
             ]);
         }
 
@@ -59,7 +64,7 @@ class LoginRequest extends FormRequest
      */
     public function ensureIsNotRateLimited(): void
     {
-        if (! RateLimiter::tooManyAttempts($this->throttleKey(), 5)) {
+        if (!RateLimiter::tooManyAttempts($this->throttleKey(), 5)) {
             return;
         }
 
@@ -68,7 +73,8 @@ class LoginRequest extends FormRequest
         $seconds = RateLimiter::availableIn($this->throttleKey());
 
         throw ValidationException::withMessages([
-            'email' => trans('auth.throttle', [
+            // 'email' を 'employee_id' に変更
+            'employee_id' => trans('auth.throttle', [
                 'seconds' => $seconds,
                 'minutes' => ceil($seconds / 60),
             ]),
@@ -80,6 +86,20 @@ class LoginRequest extends FormRequest
      */
     public function throttleKey(): string
     {
-        return Str::transliterate(Str::lower($this->string('email')).'|'.$this->ip());
+        // 'email' を 'employee_id' に変更
+        return Str::transliterate(Str::lower($this->input('employee_id')) . '|' . $this->ip());
     }
+
+    /**
+     * Get the user model for the validation.
+     * Laravel 11以降では、モデルのフィールドに基づいてバリデーションメッセージをカスタマイズするために
+     * このようなメソッドが使われることがあります。
+     * 不要であればこのメソッドはなくても動作する場合があります。
+     *
+     * @return User
+     */
+    // public function user() : User // このメソッドは必須ではないかもしれません。
+    // {
+    //     return User::where('employee_id', $this->input('employee_id'))->firstOrNew();
+    // }
 }
