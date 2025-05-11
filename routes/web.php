@@ -23,7 +23,7 @@ Route::middleware(['auth', 'web'])->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
-Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () {
+Route::middleware(['auth', 'can:viewAdminFeatures'])->prefix('admin')->name('admin.')->group(function () {
     Route::resource('/holidays', HolidayController::class);
 });
 
