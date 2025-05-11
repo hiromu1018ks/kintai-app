@@ -55,7 +55,8 @@ class AttendanceController extends Controller // App\Http\Controllers\Controller
             $attendance->user_id = $user->id; // ユーザーID
             $attendance->attendance_date = $todayDateString; // 打刻日
             $attendance->clock_in_time = $now; // 現在時刻を出勤時刻として設定
-            // $attendance->clock_in_comment = $request->input('comment'); // コメント機能実装時にコメントを解除・修正して、リクエストからコメントを取得・保存します。
+            $attendance->clock_in_comment = $request->input('comment'); // コメントをコメント欄に入力した内容で設定します。
+
 
             // 設定した内容でデータベースに保存（または更新）します。
             $attendance->save();
@@ -91,7 +92,8 @@ class AttendanceController extends Controller // App\Http\Controllers\Controller
         if ($attendance && $attendance->clock_in_time && !$attendance->clock_out_time) {
             // 退勤時刻を現在の日時で設定します。
             $attendance->clock_out_time = $now;
-            // $attendance->clock_out_comment = $request->input('comment'); // コメント機能実装時にコメントを解除・修正して、リクエストからコメントを取得・保存します。
+            // コメントをコメント欄に入力した内容で設定します。
+            $attendance->clock_out_comment = $request->input('comment');
 
             // 変更をデータベースに保存します。
             $attendance->save();
