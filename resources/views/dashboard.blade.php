@@ -112,6 +112,16 @@
                             <p class="text-sm text-gray-500">本日の打刻記録はありません。</p>
                         @endif
                     </div>
+                    <div class="mt-4">
+                        <p><span class="font-medium text-gray-600 w-36 inline-block">本日の時間外(概算):</span>
+                            @if($todaysAttendance && $todaysAttendance->clock_out_time)
+                                {{-- 退勤後でないと計算できないため --}}
+                                {{ floor($todaysOvertimeMinutes / 60) }}時間 {{ $todaysOvertimeMinutes % 60 }}分
+                            @else
+                                ---
+                            @endif
+                        </p>
+                    </div>
                 </div>
             </div>
         </div>

@@ -16,12 +16,18 @@ class DashboardController extends Controller
         // 本日の打刻記録を取得
 
         $todaysAttendance = Attendance::where('user_id', $user->id)
-            ->where('attendance_date', $today)
+            ->where('attendance_date', $today->toDateString())
             ->first();
+
+        $todaysOvertimeMinutes = 0;
+        if ($todaysAttendance) {
+            $todaysOvertimeMinutes = $todaysAttendance->regular_overtime_minutes;
+        }
 
         return view('dashboard', [
             'user' => $user,
             'todaysAttendance' => $todaysAttendance,
+            'todaysOvertimeMinutes' => $todaysOvertimeMinutes, // ビューに渡す
         ]);
     }
 }
